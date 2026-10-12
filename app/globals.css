@@ -339,6 +339,12 @@ main.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   display: inline-block; line-height: 1.7;
   white-space: nowrap;
 }
+/* モバイル用: プレート内に表示するベット額（デスクトップでは非表示） */
+.bet-inline {
+  display: none;
+  font-size: 10px; font-weight: 700; color: var(--gold-hi);
+  line-height: 1.7;
+}
 .dealer-btn {
   position: absolute; top: -7px; right: -7px;
   width: 20px; height: 20px; border-radius: 50%;
@@ -378,7 +384,8 @@ main.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 }
 .bet-badge .chipico { width: 12px; height: 12px; border-width: 1.5px; }
 .s1 .bet-badge { top: 46%; right: -66px; }
-.s2 .bet-badge { top: 50%; margin-top: 34px; left: 50%; transform: translateX(-50%); }
+/* 上シートはプレートの右横（フェルト上）に配置。シートの下側はポット/ボードと干渉するため */
+.s2 .bet-badge { top: 50%; right: -66px; }
 .s3 .bet-badge { top: 46%; left: -66px; }
 
 /* ---------- 自分のゾーン ---------- */
@@ -641,9 +648,9 @@ main.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .seat { width: 118px; }
   .plate { min-width: 104px; padding: 4px 8px 4px 5px; }
   .avatar { width: 28px; height: 28px; font-size: 15px; }
-  .s1 .bet-badge { right: -8px; top: -26px; }
-  .s3 .bet-badge { left: -8px; top: -26px; }
-  .s2 .bet-badge { margin-top: 30px; }
+  /* 狭い画面はフローティングバッジが干渉するため、プレート内のインライン表示に切り替え */
+  .bet-badge { display: none; }
+  .bet-inline { display: block; }
   .s1 { left: -2px; } .s3 { right: -2px; }
   .s2 { top: -12px; }
   .btn-grid { grid-template-columns: repeat(3, 1fr); }

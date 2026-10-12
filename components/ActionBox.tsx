@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ActionKind, GameState, PresetKind } from "../lib/poker/types";
 import { fmt } from "../lib/poker/cards";
 import { actionStates } from "../lib/poker/queries";
@@ -30,6 +30,7 @@ export default function ActionBox({ G, onAct, onPreset, onSlide }: Props) {
   const [tip, setTip] = useState<Tip | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverElRef = useRef<HTMLElement | null>(null);
 
   // tip を実際のサイズで測って上方向に配置（入りきらなければ下へ）
   useLayoutEffect(() => {
@@ -55,6 +56,24 @@ export default function ActionBox({ G, onAct, onPreset, onSlide }: Props) {
     setTip({ anchorX: r.left + r.width / 2, anchorY: r.top, h: r.height, msg });
   };
 
+  // ホバー中に状態が変わった場合の追従:
+  // ボタンが押せるようになったらツールチップを即座に消し、理由が変わったら内容を更新する
+  useEffect(() => {
+    const el = hoverElRef.current;
+    if (!el) return;
+    const msg = reasonOf(el);
+    if (!msg) {
+      setTip(t => (t === null ? t : null));
+      return;
+    }
+    const r = el.getBoundingClientRect();
+    setTip(t =>
+      t && t.msg === msg
+        ? t
+        : { anchorX: r.left + r.width / 2, anchorY: r.top, h: r.height, msg }
+    );
+  });
+
   const flashTip = (el: HTMLElement) => {
     const msg = reasonOf(el);
     if (!msg) return;
@@ -76,10 +95,22 @@ export default function ActionBox({ G, onAct, onPreset, onSlide }: Props) {
         onClick={() => {
           if (st.ok) onAct(kind);
         }}
-        onPointerEnter={e => hoverTip(e.currentTarget)}
-        onPointerLeave={() => setTip(null)}
-        onFocus={e => hoverTip(e.currentTarget)}
-        onBlur={() => setTip(null)}
+        onPointerEnter={e => {
+          hoverElRef.current = e.currentTarget;
+          hoverTip(e.currentTarget);
+        }}
+        onPointerLeave={() => {
+          hoverElRef.current = null;
+          setTip(null);
+        }}
+        onFocus={e => {
+          hoverElRef.current = e.currentTarget;
+          hoverTip(e.currentTarget);
+        }}
+        onBlur={() => {
+          hoverElRef.current = null;
+          setTip(null);
+        }}
         onPointerDown={e => flashTip(e.currentTarget)}
       >
         <span className="k">{label}</span>
@@ -118,8 +149,14 @@ export default function ActionBox({ G, onAct, onPreset, onSlide }: Props) {
         id="raiseRow"
         aria-disabled={!S.slider.ok}
         data-reason={S.slider.ok ? undefined : S.slider.reason}
-        onPointerEnter={e => hoverTip(e.currentTarget)}
-        onPointerLeave={() => setTip(null)}
+        onPointerEnter={e => {
+          hoverElRef.current = e.currentTarget;
+          hoverTip(e.currentTarget);
+        }}
+        onPointerLeave={() => {
+          hoverElRef.current = null;
+          setTip(null);
+        }}
       >
         <div className="raise-line">
           <span className="cap">金額</span>

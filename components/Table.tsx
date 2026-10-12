@@ -61,6 +61,9 @@ function Seat({ G, i }: { G: GameState; i: number }) {
               借金 {fmt(p.debt)}
             </div>
           ) : null}
+          {p.betThisRound > 0 ? (
+            <div className="bet-inline num">ベット {fmt(p.betThisRound)}</div>
+          ) : null}
         </div>
         <div className={`dealer-btn${G.dealerIdx === i && !p.out && G.handNo > 0 ? " on" : ""}`}>
           D
